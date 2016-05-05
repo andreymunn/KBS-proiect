@@ -1,0 +1,176 @@
+(full-reset)
+
+;Concepte
+
+(define-primitive-concept contract)
+(define-primitive-concept persoana)
+(define-primitive-concept timp)
+(define-primitive-concept valoare)
+(define-primitive-concept obiect)
+(define-primitive-concept locatie)
+(define-primitive-concept somer)
+(define-primitive-concept apartamentDisponibil)
+(define-primitive-concept obiectDisponibil)
+
+;multimi sau clase
+
+(implies contractInchiriere contract)
+(implies contractAngajare contract)
+(implies contractVanzare contract)
+
+(implies persoanaFizica persoana)
+(implies persoanaJuridica persoana)
+
+(implies durataContract timp)
+(implies data timp)
+
+(implies pret valoare)
+(implies valuta valoare)
+
+
+(implies imobil obiect)
+(implies autovehicul obiect)
+
+
+(implies apartament imobil)
+(implies cladire imobil)
+
+(implies Ford autovehicul)
+(implies Dacia autovehicul)
+(implies BMW autovehicul)
+
+
+;;;;;Roluri legatura dintre multimi
+
+(define-primitive-role areProprietar :domain (or contractInchiriere contractVanzare) :range persoana)
+(define-primitive-role areChirias :domain contractInchiriere :range persoana)
+(define-primitive-role areObiect :domain (or contractInchiriere contractVanzare) :range obiect)
+(define-primitive-role areValoare :domain contract :range valoare)
+(define-primitive-role areDurata :domain contract :range timp)
+(define-primitive-role areData :domain contract :range timp)
+(define-primitive-role areLocatie :domain persoana :range locatie)
+
+
+(define-primitive-role areAngajator :domain contractAngajare :range persoana)
+(define-primitive-role areAngajat :domain contractAngajare :range persoana)
+
+(define-primitive-role inchiriaza :domain persoana :range imobil )
+(define-primitive-role vinde :domain persoana :range persoana )
+(define-primitive-role vanzare :domain persoana :range imobil )
+(define-primitive-role likes :domain persoana  :range obiect )
+
+(define-primitive-role angajeaza :domain persoanaJuridica :range persoanaFizica )
+(define-primitive-role likesPersoana :domain persoanaJuridica  :range persoanaFizica )
+
+(define-primitive-role areBani :domain persoana :range valoare )
+(define-primitive-role areObiect :domain persoana :range obiect )
+
+
+;;;;;atribute
+
+(define-concrete-domain-attribute areNumarContract :type integer :domain contract)
+(define-concrete-domain-attribute areNume :type string :domain persoana)
+(define-concrete-domain-attribute latitudine :type real :domain locatie)
+(define-concrete-domain-attribute longitudine :type real :domain locatie)
+(define-concrete-domain-attribute arePret :type real :domain valoare)
+(define-concrete-domain-attribute areValuta :type string :domain valoare)
+
+
+
+
+;;;;;;; Instante (elementele multimii)
+
+(instance p1 persoanaFizica)
+(instance p2 persoanaFizica)
+(instance p3 persoanaFizica)
+
+(instance firma1 persoanaJuridica)
+(instance firma2 persoanaJuridica)
+
+(instance Cluj locatie)
+(instance Bucuresti locatie)
+(instance Timisoara locatie)
+
+(instance contract1 contract)
+(instance contract2 contract)
+(instance contract3 contract)
+
+(instance George somer)
+(instance a1 apartamentDisponibil)
+(instance George2 persoana)
+
+
+
+(attribute-filler contract1 "RON" areValuta)
+(attribute-filler contract1  2000.0 arePret)
+
+(attribute-filler contract2 "EUR" areValuta)
+(attribute-filler contract2 1323.2 arePret)
+
+(attribute-filler contract1 "2Luni" areDurata)
+(attribute-filler contract2 "10Ani" areDurata)
+
+(attribute-filler contract1 "10.01.2016" areData)
+(attribute-filler contract2 "10.12.2012"  areData)
+
+(attribute-filler p1 "Ion" areNume)
+(attribute-filler p2 "Andrei" areNume)
+(attribute-filler p3 "Vadim" areNume)
+
+(attribute-filler firma1 "Yonder" areNume)
+(attribute-filler firma2 "ISDC" areNume)
+
+(attribute-filler Cluj 46.77 latitudine)
+(attribute-filler Cluj 23.58 longitudine)
+
+(attribute-filler Bucuresti 45.67 latitudine)
+(attribute-filler Bucuresti 25.62 longitudine)
+
+
+
+;;;Reguli
+
+(related firma1 George likesPersoana)
+(related p1 a1 likes)
+(related firma2 Bucuresti areLocatie)
+(related p3 OD1 likes)
+
+
+(define-rule (?x areLocatie) (?x persoanaJuridica))
+
+
+(define-rule (?x ?y angajeaza ) (and (?x persoanaJuridica)
+                                     (?y somer)
+                                     (?x ?y  likesPersoana)
+                                   ))
+
+(define-rule (?x ?y inchiriaza ) (and (?x persoana)
+                                     (?y apartamentDisponibil)
+                                     (?x ?y  likes)
+                                   ))
+
+(define-rule (?x ?y vanzare ) (and (?x persoana)
+                                 (?y obiectDisponibil)
+                                  (?x ?y  likes)
+                                   ))
+
+(define-rule (?x ?y vinde ) (and (?x persoana)
+                                 (?y persoana)
+                                 (?x areObiect )
+                                 (?y areBani) 
+                                       
+                                  
+                                   )
+)
+
+                         
+                                     
+(run-all-rules)
+(abox-consistent?)
+(tbox-coherent?)
+(evaluate (length (all-individuals )))
+(evaluate (length (all-atomic-concepts )))
+(evaluate (length (all-roles )))
+(evaluate (length (all-rules )))
+
+
