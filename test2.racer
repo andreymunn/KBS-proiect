@@ -10,7 +10,9 @@
 (define-primitive-concept locatie)
 (define-primitive-concept somer)
 (define-primitive-concept apartamentDisponibil)
+(define-primitive-concept autovehiculDisponibil)
 (define-primitive-concept obiectDisponibil)
+(define-primitive-concept legislatie)
 
 ;multimi sau clase
 
@@ -30,15 +32,50 @@
 
 (implies imobil obiect)
 (implies autovehicul obiect)
-
+(implies aeronava obiect)
+(implies corabie obiect)
+(implies submarina obiect)
 
 (implies apartament imobil)
 (implies cladire imobil)
+(implies vila imobil)
+
+(implies magazin cladire)
+(implies biblioteca cladire)
+(implies banca cladire)
 
 (implies Ford autovehicul)
 (implies Dacia autovehicul)
 (implies BMW autovehicul)
+(implies Volkswagen autovehicul)
+(implies Renault autovehicul)
+(implies Citroen autovehicul)
 
+(implies Golf7 Volkswagen)
+(implies Golf6 Volkswagen)
+(implies Golf5 Volkswagen)
+(implies Golf4 Volkswagen)
+(implies Passat Volkswagen)
+(implies Touran Volkswagen)
+(implies Polo Volkswagen)
+
+(implies Duster Dacia)
+(implies Logan Dacia)
+(implies Sandero Dacia)
+(implies Papuc Dacia)
+
+(implies Focus Ford)
+(implies Fiesta Ford)
+(implies Mondeo Ford)
+
+(implies Clio Renault)
+(implies Megane Renault)
+(implies Fluence Renault)
+
+(disjoint persoanaFizica persoanaJuridica)
+(disjoint contractAngajare contractInchiriere contractVanzare)
+(disjoint Ford Dacia BMW Volkswagen Renault Citroen)
+(disjoint magazin banca biblioteca)
 
 ;;;;;Roluri legatura dintre multimi
 
@@ -57,10 +94,13 @@
 (define-primitive-role inchiriaza :domain persoana :range imobil )
 (define-primitive-role vinde :domain persoana :range persoana )
 (define-primitive-role vanzare :domain persoana :range imobil )
-(define-primitive-role likes :domain persoana  :range obiect )
+(define-primitive-role likes :domain persoana :range obiect )
+(define-primitive-role PretAcceptabil :domain persoana :range valoare)
+(define-primitive-role ContractIntaritLaNotar :domain contract :range legislatie )
 
 (define-primitive-role angajeaza :domain persoanaJuridica :range persoanaFizica )
 (define-primitive-role likesPersoana :domain persoanaJuridica  :range persoanaFizica )
+(define-primitive-role likesAuto :domain persoana  :range autovehicul )
 
 (define-primitive-role areBani :domain persoana :range valoare )
 (define-primitive-role areObiect :domain persoana :range obiect )
@@ -83,13 +123,18 @@
 (instance p1 persoanaFizica)
 (instance p2 persoanaFizica)
 (instance p3 persoanaFizica)
+(instance pers4 persoanaFizica)
 
 (instance firma1 persoanaJuridica)
 (instance firma2 persoanaJuridica)
+(instance firma3 persoanaJuridica)
 
 (instance Cluj locatie)
 (instance Bucuresti locatie)
 (instance Timisoara locatie)
+(instance London locatie)
+(instance Paris locatie)
+(instance Berlin locatie)
 
 (instance contract1 contract)
 (instance contract2 contract)
@@ -97,8 +142,19 @@
 
 (instance George somer)
 (instance a1 apartamentDisponibil)
-(instance George2 persoana)
+(instance apartament2 apartamentDisponibil)
+(instance apartament4 apartamentDisponibil)
 
+(instance Sergiu persoana)
+(instance Vasile persoana)
+(instance Dan persoana)
+(instance Vlad persoana)
+(instance Petru persoana)
+
+(instance auto1 autovehiculDisponibil)
+(instance auto2 autovehiculDisponibil)
+(instance auto3 autovehiculDisponibil)
+(instance auto4 autovehiculDisponibil)
 
 
 (attribute-filler contract1 "RON" areValuta)
@@ -135,6 +191,8 @@
 (related firma2 Bucuresti areLocatie)
 (related p3 OD1 likes)
 
+(related Sergiu auto1 likesAuto)
+(related Vasile auto2 likesAuto)
 
 (define-rule (?x areLocatie) (?x persoanaJuridica))
 
@@ -161,9 +219,22 @@
                                        
                                   
                                    )
-)
+                               )
 
-                         
+ (define-rule (?x ?y vanzare ) (and (?x persoana)
+                                 (?y obiectDisponibil)
+                                  (?x ?y  likes)
+                                   (?y PretAcceptabil)
+								   (?x ContractIntaritLaNotar)
+								   )
+								   )  
+								   
+ (define-rule (?x ?y inchiriaza ) (and (?x persoana)
+                                  (?y autovehiculDisponibil)
+                                   (?x ?y  likesAuto)                                  
+								   (?x ContractIntaritLaNotar)
+								   )
+								   )								   
                                      
 (run-all-rules)
 (abox-consistent?)
@@ -172,5 +243,6 @@
 (evaluate (length (all-atomic-concepts )))
 (evaluate (length (all-roles )))
 (evaluate (length (all-rules )))
+
 
 
