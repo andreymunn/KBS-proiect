@@ -13,6 +13,7 @@
 (define-primitive-concept autovehiculDisponibil)
 (define-primitive-concept obiectDisponibil)
 (define-primitive-concept legislatie)
+(define-primitive-concept consecinte)
 
 ;multimi sau clase
 
@@ -35,6 +36,7 @@
 (implies aeronava obiect)
 (implies corabie obiect)
 (implies submarina obiect)
+(implies aeroplan obiect)
 
 (implies apartament imobil)
 (implies cladire imobil)
@@ -81,11 +83,13 @@
 
 (define-primitive-role areProprietar :domain (or contractInchiriere contractVanzare) :range persoana)
 (define-primitive-role areChirias :domain contractInchiriere :range persoana)
-(define-primitive-role areObiect :domain (or contractInchiriere contractVanzare) :range obiect)
+;(define-primitive-role areObiect :domain (or contractInchiriere contractVanzare) :range obiect)
 (define-primitive-role areValoare :domain contract :range valoare)
 (define-primitive-role areDurata :domain contract :range timp)
 (define-primitive-role areData :domain contract :range timp)
 (define-primitive-role areLocatie :domain persoana :range locatie)
+(define-primitive-role esteChirias :domain obiect :range persoana)
+
 
 
 (define-primitive-role areAngajator :domain contractAngajare :range persoana)
@@ -95,12 +99,19 @@
 (define-primitive-role vinde :domain persoana :range persoana )
 (define-primitive-role vanzare :domain persoana :range imobil )
 (define-primitive-role likes :domain persoana :range obiect )
-(define-primitive-role PretAcceptabil :domain persoana :range valoare)
+(define-primitive-role PretAcceptabil :domain persoana :range valoare )
 (define-primitive-role ContractIntaritLaNotar :domain contract :range legislatie )
+(define-primitive-role rupereaContractului :domain contract :range legislatie )
+(define-primitive-role apeleazaNotar :domain persoana :range persoanaJuridica )
+(define-primitive-role aplicaLegislatia :domain persoanaJuridica :range legislatie )
+
 
 (define-primitive-role angajeaza :domain persoanaJuridica :range persoanaFizica )
 (define-primitive-role likesPersoana :domain persoanaJuridica  :range persoanaFizica )
 (define-primitive-role likesAuto :domain persoana  :range autovehicul )
+(define-primitive-role nuRespectaContractul :domain persoana :range legislatie)
+(define-primitive-role proprietarDezamagit :domain persoana :range consecinte)
+(define-primitive-role chiriasDatAfara :domain persoana :range consecinte)
 
 (define-primitive-role areBani :domain persoana :range valoare )
 (define-primitive-role areObiect :domain persoana :range obiect )
@@ -150,6 +161,12 @@
 (instance Dan persoana)
 (instance Vlad persoana)
 (instance Petru persoana)
+(instance Alex persoana)
+(instance Marcel persoana)
+(instance Iura persoana)
+(instance Bogdan persoana)
+(instance Valeriu persoana)
+(instance Ioan persoana)
 
 (instance auto1 autovehiculDisponibil)
 (instance auto2 autovehiculDisponibil)
@@ -183,7 +200,7 @@
 (attribute-filler Bucuresti 25.62 longitudine)
 
 
-
+;(equivalent daInChirie (and inchiriaza))
 ;;;Reguli
 
 (related firma1 George likesPersoana)
@@ -193,6 +210,14 @@
 
 (related Sergiu auto1 likesAuto)
 (related Vasile auto2 likesAuto)
+(related Vlad apartament4 nuRespectaContractul)
+(related Vasile inchiriaza obiectDisponibil)
+(related Vadim esteChirias obiectDisponibil)
+(related Sergiu daInChirie obiectDisponibil)
+(related Vadim nuRespectaContractul legislatie)
+(related Sergiu proprietarDezamagit consecinte)
+(related Sergiu apeleazaNotar persoanaJuridica)
+(related Alex aplicaLegislatia legislatie)
 
 (define-rule (?x areLocatie) (?x persoanaJuridica))
 
@@ -234,8 +259,33 @@
                                    (?x ?y  likesAuto)                                  
 								   (?x ContractIntaritLaNotar)
 								   )
-								   )								   
-                                     
+								   )	
+								   
+(define-rule (?y chiriasDatAfara )(and (?x persoana) (?y persoana)                                  
+								     (?x inchiriaza) (?y esteChirias)
+									(and (?y nuRespectaContractul) (?x proprietarDezamagit) ))									
+
+)								   
+
+(define-rule (?y chiriasDatAfara )(and (?x persoana) (?y persoana)                                  
+								     (?x inchiriaza) (?y esteChirias)
+									(and (?y nuRespectaContractul) (?x proprietarDezamagit) )
+									(?z ContractIntaritLaNotar)
+									)									
+
+) 
+
+(define-rule (?z rupereaContractului )(and (?x persoana) (?y persoana)                                  
+								     (?x inchiriaza) (?y esteChirias)
+									 (or (?y nuRespectaContractul) (?x nuRespectaContractul)  )
+									 (or (?x apeleazaNotar) (?y apeleazaNotar))
+									 (?j aplicaLegislatia)
+									  
+									 
+ )
+ )
+ 
+
 (run-all-rules)
 (abox-consistent?)
 (tbox-coherent?)
