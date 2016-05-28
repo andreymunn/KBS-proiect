@@ -46,6 +46,17 @@
 (implies submarina obiect)
 (implies aeroplan obiect)
 (implies conducta obiect)
+(implies leptop obiect)
+
+(implies conductaDeGaz conducta)
+(implies conductaDeApa conducta)
+
+(implies lenovo leptop)
+(implies asus leptop)
+(implies acer leptop)
+(implies toshiba leptop)
+(implies hp leptop)
+(implies apple letpot)
 
 (implies apartament imobil)
 (implies cladire imobil)
@@ -61,6 +72,7 @@
 (implies GSG banca)
 (implies BRD_GSG banca)
 (implies BT banca)
+(implies BE banca)
 
 (implies Altex magazin)
 (implies Auchan magazin)
@@ -78,6 +90,9 @@
 (implies Golf6 Volkswagen)
 (implies Golf5 Volkswagen)
 (implies Golf4 Volkswagen)
+(implies Golf3 Volkswagen)
+(implies Golf2 Volkswagen)
+(implies Golf1 Volkswagen)
 (implies Passat Volkswagen)
 (implies Touran Volkswagen)
 (implies Polo Volkswagen)
@@ -286,7 +301,7 @@
                                   (?x ?y  likes)
                                    ))
 
-(define-rule (?x ?y vinde ) (and (?x persoana)
+(define-rule (?x ?y vinde ) (and (?x persoana)i
                                  (?y persoana)
                                  (?x areObiect )
                                  (?y areBani) 
